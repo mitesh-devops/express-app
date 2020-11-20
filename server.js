@@ -10,7 +10,7 @@ app.get('/', (req, res) => {
     setTimeout(() => {
         console.info("response sent");
         res.send('Hello World!');
-    }, 240000);
+    }, 2400);
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
