@@ -2,19 +2,16 @@ apiVersion: v1
 kind: Service
 metadata:
   name: node-demo
-  labels:
-    tier: apps
 spec:
-  ports:
-    - port: 3001
-      protocol: TCP
-      targetPort: 3001
-      name: http-node-demo
+  type: LoadBalancer
   selector:
     app: node-demo-server
-    tier: apps
+  ports:
+    - protocol: TCP
+      port: 3001
+      targetPort: 3001
+      name: http-node-demo
   sessionAffinity: None
-  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -61,27 +58,6 @@ spec:
             defaultMode: 420
             name: node-demo-config
           name: server-conf
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: node-demo
-spec:
-  hosts:
-    - "*"
-  gateways:
-    - nodejs-gateway
-  http:
-    - match:
-        - uri:
-            exact: /node-demo
-      route:
-        - destination:
-            host: node-demo
-            port:
-              number: 3001
-      #timeout: 300s
-      #retries:
-        #attempts: 3
-        #perTryTimeout: 125s
-        #retryOn: connect-failure,refused-stream,unavailable,cancelled,resource-exhausted,retriable-status-codes,gateway-error,5xx
+
+
+

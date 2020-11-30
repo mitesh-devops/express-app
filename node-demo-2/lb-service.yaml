@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-demo-2
+spec:
+  type: LoadBalancer
+  selector:
+    app: node-demo-2-server
+  ports:
+    - protocol: TCP
+      port: 3001
+      targetPort: 3001
+      name: http-node-demo-2
+  sessionAffinity: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-demo-2
+  labels:
+    app: node-demo-2-server
+    tier: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-demo-2-server
+      tier: apps
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/proxyCPU: 10m
+        sidecar.istio.io/proxyMemory: 70Mi
+      labels:
+        app: node-demo-2-server
+        tier: apps
+    spec:
+      containers:
+        - name: node-demo
+          image: miteshgangaramani/nodejs-image-demo:node-demo-2-130-new10
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - -xec
+            - cp /home/node/serverfile/server1.js ./ && node server1.js
+          env:
+            - name: NODE_ENV
+              value: "dev"
+            - name: NODE_PORT
+              value: "3001"
+          ports:
+            - containerPort: 3001
+          volumeMounts:
+            - name: server-conf
+              mountPath: /home/node/serverfile
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: node-demo-2-config
+          name: server-conf
+
+
+

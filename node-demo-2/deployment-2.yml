@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: node-demo
+  name: node-demo-2
   labels:
     tier: apps
 spec:
@@ -9,9 +9,9 @@ spec:
     - port: 3001
       protocol: TCP
       targetPort: 3001
-      name: http-node-demo
+      name: http-node-demo-2
   selector:
-    app: node-demo-server
+    app: node-demo-2-server
     tier: apps
   sessionAffinity: None
   type: ClusterIP
@@ -19,15 +19,15 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: node-demo
+  name: node-demo-2
   labels:
-    app: node-demo-server
+    app: node-demo-2-server
     tier: apps
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node-demo-server
+      app: node-demo-2-server
       tier: apps
   template:
     metadata:
@@ -35,17 +35,17 @@ spec:
         sidecar.istio.io/proxyCPU: 10m
         sidecar.istio.io/proxyMemory: 70Mi
       labels:
-        app: node-demo-server
+        app: node-demo-2-server
         tier: apps
     spec:
       containers:
         - name: node-demo
-          image: miteshgangaramani/nodejs-image-demo:node-demo-130
+          image: miteshgangaramani/nodejs-image-demo:node-demo-2-130-new10
           imagePullPolicy: Always
           command:
             - /bin/sh
             - -xec
-            - cp /home/node/serverfile/server.js ./ && node server.js
+            - cp /home/node/serverfile/server1.js ./ && node server1.js
           env:
             - name: NODE_ENV
               value: "dev"
@@ -59,13 +59,13 @@ spec:
       volumes:
         - configMap:
             defaultMode: 420
-            name: node-demo-config
+            name: node-demo-2-config
           name: server-conf
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: node-demo
+  name: node-demo-2
 spec:
   hosts:
     - "*"
@@ -74,13 +74,13 @@ spec:
   http:
     - match:
         - uri:
-            exact: /node-demo
+            exact: /node-demo-2
       route:
         - destination:
-            host: node-demo
+            host: node-demo-2
             port:
               number: 3001
-      #timeout: 300s
+      #timeout: 210s
       #retries:
         #attempts: 3
         #perTryTimeout: 125s

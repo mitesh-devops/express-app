@@ -1,0 +1,14 @@
+version: '2'
+services:
+  node-demo:
+    image: miteshgangaramani/nodejs-image-demo:
+    build: .
+    command: node server.js
+    ports:
+      - "3001:3001"
+  node-demo-2:
+    image: miteshgangaramani/nodejs-image-demo:dev-1
+    build: .
+    command: node server1.js
+    ports:
+      - "3001:3002"
