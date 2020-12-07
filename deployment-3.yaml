@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: node-demo-2
+  name: node-demo-main
   labels:
     tier: apps
 spec:
@@ -9,9 +9,9 @@ spec:
     - port: 3001
       protocol: TCP
       targetPort: 3001
-      name: http-node-demo-2
+      name: http-node-demo-main
   selector:
-    app: node-demo-2-server
+    app: node-demo-server-main
     tier: apps
   sessionAffinity: None
   type: ClusterIP
@@ -19,15 +19,15 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: node-demo-2
+  name: node-demo-main
   labels:
-    app: node-demo-2-server
+    app: node-demo-server-main
     tier: apps
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node-demo-2-server
+      app: node-demo-server-main
       tier: apps
   template:
     metadata:
@@ -35,17 +35,17 @@ spec:
         sidecar.istio.io/proxyCPU: 10m
         sidecar.istio.io/proxyMemory: 70Mi
       labels:
-        app: node-demo-2-server
+        app: node-demo-server-main
         tier: apps
     spec:
       containers:
-        - name: node-demo
-          image: miteshgangaramani/nodejs-image-demo:node-demo-2-as-root
+        - name: node-demo-main
+          image: miteshgangaramani/nodejs-image-demo:http-main-demo
           imagePullPolicy: Always
           command:
             - /bin/sh
             - -xec
-            - cp /home/node/serverfile/server1.js ./ && node server1.js
+            - node http-index-server.js
           env:
             - name: NODE_ENV
               value: "dev"
@@ -53,19 +53,11 @@ spec:
               value: "3001"
           ports:
             - containerPort: 3001
-          volumeMounts:
-            - name: server-conf
-              mountPath: /home/node/serverfile
-      volumes:
-        - configMap:
-            defaultMode: 420
-            name: node-demo-2-config
-          name: server-conf
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: node-demo-2
+  name: node-demo-main
 spec:
   hosts:
     - "*"
@@ -74,14 +66,14 @@ spec:
   http:
     - match:
         - uri:
-            exact: /node-demo-2
+            exact: /
       route:
         - destination:
-            host: node-demo-2
+            host: node-demo-main
             port:
               number: 3001
-      #timeout: 150s
-      #retries:
+        #timeout: 300s
+        #retries:
         #attempts: 3
-        #perTryTimeout: 130s
+        #perTryTimeout: 125s
         #retryOn: connect-failure,refused-stream,unavailable,cancelled,resource-exhausted,retriable-status-codes,gateway-error,5xx

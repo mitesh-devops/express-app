@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
         - name: node-demo
-          image: miteshgangaramani/nodejs-image-demo:node-demo-130
+          image: miteshgangaramani/nodejs-image-demo:node-demo-as-root
           imagePullPolicy: Always
           command:
             - /bin/sh
@@ -80,8 +80,8 @@ spec:
             host: node-demo
             port:
               number: 3001
-      #timeout: 300s
+      #timeout: 140s
       #retries:
         #attempts: 3
-        #perTryTimeout: 125s
+        #perTryTimeout: 130s
         #retryOn: connect-failure,refused-stream,unavailable,cancelled,resource-exhausted,retriable-status-codes,gateway-error,5xx
